@@ -62,23 +62,23 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vb.customize ["modifyvm", :id, "--memory", profile[:vm_mem]]
   end
 
-  args = ""
-
   config.vm.provision :ansible do |ansible|
     ansible.playbook = "provision/bootstrap.yml"
     ansible.extra_vars = profile 
   end
 
-  #config.vm.provision :ansible do |ansible|
-  #  ansible.playbook = "provision/install-ranger.yml"
-  #  ansible.extra_vars = profile
-  #  ansible.verbose = 'v,v,v'
-  #end
+  if "true".casecmp(profile[:rpm_install].to_s) == 0
+    config.vm.provision :ansible do |ansible|
+      ansible.playbook = "provision/rpm.yml"
+      ansible.extra_vars = profile
+    end
+  end
 
-  config.vm.provision :ansible do |ansible|
-    ansible.playbook = "provision/dev-setup.yml"
-    ansible.extra_vars = profile
-    ansible.verbose = 'v,v,v'
+  if "true".casecmp(profile[:build_ranger].to_s) == 0
+    config.vm.provision :ansible do |ansible|
+      ansible.playbook = "provision/dev.yml"
+      ansible.extra_vars = profile
+    end
   end
 
 

@@ -1,0 +1,16 @@
+---
+- hosts: all
+  sudo: true
+
+  handlers:
+    - name: reload mysql
+      service: name=mysqld state=reloaded
+
+  #pre_tasks:
+  #  - name: update apt cache
+  #    apt: update_cache=yes
+
+  tasks:
+    - include: bootstrap.yml
+    - include: dev.yml
+    - include: rpm.yml
