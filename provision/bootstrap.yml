@@ -1,0 +1,59 @@
+---
+- hosts: all
+  sudo: true
+  vars:
+    mysql_root_password: vagrant
+  #pre_tasks:
+  #  - name: yum update
+  #    yum: name=* update_cache=yes
+  tasks:
+    - name : install wget
+      yum : name=wget state=present
+
+    - name : install mysql
+      yum: name={{ item }} state=present
+      sudo: yes
+      with_items:
+      - mysql
+      - mysql-devel
+      - mysql-server
+      - mysql-connector-java
+      - mysql-connector-python
+
+    - name : install java 1.7 JDK
+      yum : name=java-1.7.0-openjdk-devel state=present
+
+    - name : install python pip
+      yum : name=python-devel state=present
+
+    - name : install python pip
+      yum : name=python-pip state=present
+
+    - name: install pip mysql 
+      pip: name=mysql
+
+    - name: install pip MySQL python 
+      pip: name=MySQL-python
+
+    - name : copy java.sh
+      template: src=../data/java.sh dest=/etc/profile.d/java.sh
+
+    - name : start mysqld
+      service: name=mysqld state=started enabled=true
+    - name: update mysql root password for all root accounts
+      sudo: yes
+      mysql_user: 
+        name: root 
+        host: "{{ item }}" 
+        password: "{{ mysql_root_password }}"
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+        check_implicit_admin: yes
+        priv: "*.*:ALL,GRANT"
+      with_items:
+        - "{{ ansible_hostname }}"
+        - 127.0.0.1
+        - ::1
+        - localhost  
+
+

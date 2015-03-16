@@ -1,0 +1,43 @@
+---
+- hosts: all
+  sudo: true
+  vars:
+    ranger_hdp_dir: /usr/hdp/current/ranger-admin
+  #pre_tasks:
+  #  - name: yum update
+  #    yum: name=* update_cache=yes
+  tasks:
+    #- name: bootstrap hdp repo
+    #  copy: src=../data/hdp.repo
+    #        dest=/etc/yum.repos.d/
+    #        owner=root group=root mode=0644
+
+    - name: download sources
+      get_url: url={{rpm_install_params.hdp_repo}} dest=/etc/yum.repos.d/hdp.repo
+
+    - name: yum clean all 
+      command: yum clean all
+
+    - name: install ranger-admin
+      yum: name=ranger-admin
+           state=present
+
+    - name: Copy install.properties
+      copy: src=../data/install.properties
+            dest={{ranger_hdp_dir}}/install.properties
+
+    - name: Run Ranger Admin setup 
+      shell: sh ./setup.sh chdir={{ranger_hdp_dir}}
+      environment:
+        JAVA_HOME: /usr/lib/jvm/jre-1.7.0-openjdk.x86_64
+
+
+    - name: Run set_globals.sh 
+      shell: sh ./set_globals.sh chdir={{ranger_hdp_dir}}
+      environment:
+        JAVA_HOME: /usr/lib/jvm/jre-1.7.0-openjdk.x86_64
+
+    - name: Start Ranger Admin
+      command: su -l ranger -c '/usr/bin/ranger-admin-start'
+
+
