@@ -11,6 +11,7 @@
 		"ranger_src_dir" : "/home/vagrant/ranger-dev",
 		"ranger_repo" : "https://github.com/apache/incubator-ranger.git",
 		"ranger_branch" : "master",
+		"build_command" : "mvn clean compile package assembly:assembly",
 		"apply_patches" : false
 	},
 	"vm_mem" : 3072

@@ -64,18 +64,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   args = ""
 
-  #config.omnibus.chef_version = :latest
-  #config.berkshelf.berksfile_path = 'Berksfile'
-  #config.vm.provision :chef_solo do |chef|
-  #  chef.roles_path = "chef/roles"
-  #  chef.cookbooks_path = ["chef/site-cookbooks", "chef/cookbooks"]
-  #  chef.add_role "dev-setup"
-  #end
-
-  #config.vm.provision :ansible do |ansible|
-  #  ansible.playbook = "provision/bootstrap.yml"
-  #  ansible.extra_vars = profile 
-  #end
+  config.vm.provision :ansible do |ansible|
+    ansible.playbook = "provision/bootstrap.yml"
+    ansible.extra_vars = profile 
+  end
 
   #config.vm.provision :ansible do |ansible|
   #  ansible.playbook = "provision/install-ranger.yml"
@@ -89,17 +81,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     ansible.verbose = 'v,v,v'
   end
 
-
-  #config.vm.provision :shell, :path => "provision/bootstrap.sh", args: args
-  #if "true".casecmp(profile[:rpm_install].to_s) == 0
-  #  config.vm.provision shell, :path => "provision/install-ranger.sh", args: args
-  #  config.vm.provision :shell, :path => "provision/install-plugins.sh", args: args
-  #end
-
-  #if "true".casecmp(profile[:build_ranger].to_s) == 0
-    #config.vm.provision "shell", inline: "/usr/bin/python /vagrant/provision/dev-setup.py"
-	#provision/dev-setup.py", args: args
-  #end
 
   #
   # View the documentation for the provider you're using for more

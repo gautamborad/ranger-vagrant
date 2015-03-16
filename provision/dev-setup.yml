@@ -2,25 +2,20 @@
 - hosts: all
   sudo: true
   vars:
-    src_dir : "{{ build_params.ranger_src_dir }}"
-    wget_url : http://psg.mtu.edu/pub/apache/maven/maven-3/3.0.5/binaries/apache-maven-3.0.5-bin.tar.gz
+    src_dir: "{{ build_params.ranger_src_dir }}"
+    build_dir: /home/vagrant/ranger-build
+    ranger_build_dir: /home/vagrant/ranger-build/ranger-0.4.0-admin
+    patches_dir: /tmp/ranger-patches
+    #wget_url: http://psg.mtu.edu/pub/apache/maven/maven-3/3.0.5/binaries/apache-maven-3.0.5-bin.tar.gz
 
-  #pre_tasks:
-  #  - name: yum update
-  #    yum: name=* update_cache=yes
   tasks:
-    #- name: bootstrap hdp repo
-    #  copy: src=../data/hdp.repo
-    #        dest=/etc/yum.repos.d/
-    #        owner=root group=root mode=0644
-
     - name: unarchive maven
       unarchive: src=../data/apache-maven-3.0.5-bin.tar.gz dest=/tmp
 
     - name: put maven to proper place
       command: creates="/usr/share/maven" mv /tmp/apache-maven-3.0.5 /usr/share/maven
 
-    - name : copy maven.sh
+    - name: copy maven.sh
       template: src=../data/maven.sh dest=/etc/profile.d/maven.sh
 
     - name: Set mvn link
@@ -31,22 +26,42 @@
            dest={{src_dir}}
            version={{build_params.ranger_branch}}
 
-    - name: Copy install.properties
-      copy: src=../data/install.properties
-            dest="{{src_dir}}"
+    - name: copy patches
+      copy: src=../data/patches
+            dest="{{patches_dir}}"
+      when: "{{ build_params.apply_patches }}"
+
+    - stat: path="{{patches_dir}}/*.patch"
+      register: patches_available
+
+    - name: Apply patches
+      shell: sh ./dev-support/smart-apply-patch.sh {{ item }} chdir={{src_dir}}
+      with_fileglob:
+          - "{{ patches_dir }}/*.patch"
+      when: patches_available.stat.exists
 
     - name: Build Ranger Admin
       shell: mvn clean compile package assembly:assembly chdir={{src_dir}}
       environment:
         JAVA_HOME: /usr/lib/jvm/jre-1.7.0-openjdk.x86_64
 
+    - name: Create {{build_dir}} directory
+      file: path={{build_dir}} state=directory
+
+    - name: unzip ranger to {{build_dir}}
+      unarchive: src="{{src_dir}}/target/ranger-0.4.0-admin.tar.gz" dest={{build_dir}} copy=no
+
+    - name: Copy install.properties
+      copy: src=../data/install.properties
+            dest="{{ranger_build_dir}}"
+
     - name: Run Ranger Admin setup 
-      shell: sh ./setup.sh chdir={{src_dir}}
+      shell: sh ./setup.sh chdir={{ranger_build_dir}}
       environment:
         JAVA_HOME: /usr/lib/jvm/jre-1.7.0-openjdk.x86_64
 
     - name: Run set_globals.sh 
-      shell: sh ./set_globals.sh chdir={{src_dir}}
+      shell: sh ./set_globals.sh chdir={{ranger_build_dir}}
       environment:
         JAVA_HOME: /usr/lib/jvm/jre-1.7.0-openjdk.x86_64
 
