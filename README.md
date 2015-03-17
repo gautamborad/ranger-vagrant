@@ -1,17 +1,17 @@
 # ranger-vagrant
 This is a Vagrant setup for Apache Ranger 
 
-#Requirements:
-----------
+###Requirements:
+----
 
 - [VirtualBox](https://www.virtualbox.org/wiki/Downloads). Grab the VirtualBox Extension Pack as well.
 - [Vagrant](http://www.vagrantup.com/downloads.html). 
 - [Ansible](http://docs.ansible.com/intro_installation.html). Because i am not a good [cook](https://www.chef.io/chef/)!!
 
-
  
-Getting Started:
+###Getting Started:
 ----
+
 Checkout this repo :
 ```
 $ git clone git@github.com:gautamborad/ranger-vagrant.git
@@ -27,8 +27,8 @@ Bootup vagrant :
 $ vagrant up
 ```
 
-Available options:
-
+###Available Config options:
+----
 |Property|Desc|
  ----------------- | ------------------
 |box_url | The base box to use. Provide a local url, if you already have the box downloaded. (file://path/to/file.box) |
