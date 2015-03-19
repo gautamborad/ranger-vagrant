@@ -27,7 +27,7 @@
            version={{build_params.ranger_branch}}
 
     - name: copy patches
-      copy: src=../data/patches
+      copy: src=../data/patches/*
             dest="{{patches_dir}}"
       when: "{{ build_params.apply_patches }}"
 
