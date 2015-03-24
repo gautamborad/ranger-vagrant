@@ -1,13 +1,14 @@
 {
-	"box_name" : "ranger",
+	"box_name" : "gborad-ranger",
 	"box_url" : "https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box",
-	"rpm_install" : true,
+	"rpm_install" : false,
 	"rpm_install_params" : {
 		"hdp_repo" : "http://s3.amazonaws.com/dev.hortonworks.com/HDP/centos6/2.x/GA/2.2.0.0/hdp.repo",
 		"db_flavor" : "mysql"
 	},
-    "build_ranger" : false,
+    "build_ranger" : true,
 	"build_params" : {
+		"ranger_version" : "0.5.0",
 		"ranger_src_dir" : "/home/vagrant/ranger-dev",
 		"ranger_repo" : "https://github.com/apache/incubator-ranger.git",
 		"ranger_branch" : "master",

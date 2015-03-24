@@ -4,63 +4,67 @@
   vars:
     src_dir: "{{ build_params.ranger_src_dir }}"
     build_dir: /home/vagrant/ranger-build
-    ranger_build_dir: /home/vagrant/ranger-build/ranger-0.4.0-admin
+    ranger_ver: "{{ build_params.ranger_version}}"
+    ranger_build_dir: /home/vagrant/ranger-build/ranger-{{ranger_ver}}-admin
     patches_dir: /tmp/ranger-patches
     #wget_url: http://psg.mtu.edu/pub/apache/maven/maven-3/3.0.5/binaries/apache-maven-3.0.5-bin.tar.gz
 
   tasks:
-    - name: unarchive maven
+    - name: Unarchive maven
       unarchive: src=../data/apache-maven-3.0.5-bin.tar.gz dest=/tmp
 
-    - name: put maven to proper place
+    - name: Put maven to proper place
       command: creates="/usr/share/maven" mv /tmp/apache-maven-3.0.5 /usr/share/maven
 
-    - name: copy maven.sh
+    - name: Copy maven.sh
       template: src=../data/maven.sh dest=/etc/profile.d/maven.sh
 
     - name: Set mvn link
       action: command update-alternatives --install /usr/bin/mvn mvn /usr/share/maven/bin/mvn 1
 
-    - name: checkout repo 
+    - name: Checkout repo
       git: repo={{build_params.ranger_repo}}
            dest={{src_dir}}
            version={{build_params.ranger_branch}}
 
-    - name: copy patches
-      copy: src=../data/patches/*
-            dest="{{patches_dir}}"
+    - name: Empty patches dir
+      shell: rm -f {{patches_dir}}/*.patch
+
+    - name: Copy patches
+      copy: src="{{ item }}" dest="{{patches_dir}}"
+      with_fileglob:
+          - "../data/patches/*.patch"
       when: "{{ build_params.apply_patches }}"
 
-    - stat: path="{{patches_dir}}/*.patch"
+    - name: Check if any patch needs to be applied
+      shell: find {{patches_dir}} -name *.patch -type f | wc -l
       register: patches_available
 
     - name: Apply patches
-      shell: sh ./dev-support/smart-apply-patch.sh {{ item }} chdir={{src_dir}}
-      with_fileglob:
-          - "{{ patches_dir }}/*.patch"
-      when: patches_available.stat.exists
+      shell: for i in {{patches_dir}}/*.patch; do git apply $i; done chdir={{ src_dir }}
+      when : not patches_available.stdout == "0"
 
-    - name: Build Ranger Admin
-      shell: mvn clean compile package assembly:assembly chdir={{src_dir}}
-      environment:
-        JAVA_HOME: /usr/lib/jvm/jre-1.7.0-openjdk.x86_64
+    #- name: Build Ranger Admin
+    #  shell: mvn clean compile package assembly:assembly chdir={{src_dir}}
+    #  environment:
+    #    JAVA_HOME: /usr/lib/jvm/jre-1.7.0-openjdk.x86_64
 
     - name: Create {{build_dir}} directory
       file: path={{build_dir}} state=directory
 
-    - name: unzip ranger to {{build_dir}}
-      unarchive: src="{{src_dir}}/target/ranger-0.4.0-admin.tar.gz" dest={{build_dir}} copy=no
+    - name: Unzip ranger to {{build_dir}}
+      unarchive: src="{{src_dir}}/target/ranger-{{ranger_ver}}-admin.tar.gz" dest={{build_dir}} copy=no
 
     - name: Copy install.properties
       copy: src=../data/install.properties
             dest="{{ranger_build_dir}}"
 
-    - name: Run Ranger Admin setup 
+    - name: Run Ranger Admin setup
       shell: sh ./setup.sh chdir={{ranger_build_dir}}
       environment:
         JAVA_HOME: /usr/lib/jvm/jre-1.7.0-openjdk.x86_64
 
-    - name: Run set_globals.sh 
+    - name: Run set_globals.sh
       shell: sh ./set_globals.sh chdir={{ranger_build_dir}}
       environment:
         JAVA_HOME: /usr/lib/jvm/jre-1.7.0-openjdk.x86_64

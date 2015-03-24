@@ -5,13 +5,13 @@
     ranger_hdp_dir: /usr/hdp/current/ranger-admin
 
   tasks:
-    - name: download sources
+    - name: Download sources
       get_url: url={{rpm_install_params.hdp_repo}} dest=/etc/yum.repos.d/hdp.repo
 
-    - name: yum clean all 
+    - name: yum clean all
       command: yum clean all
 
-    - name: install ranger-admin
+    - name: Install ranger-admin
       yum: name=ranger-admin
            state=present
 
@@ -19,12 +19,12 @@
       copy: src=../data/install.properties
             dest={{ranger_hdp_dir}}/install.properties
 
-    - name: Run Ranger Admin setup 
+    - name: Run Ranger Admin setup
       shell: sh ./setup.sh chdir={{ranger_hdp_dir}}
       environment:
         JAVA_HOME: /usr/lib/jvm/jre-1.7.0-openjdk.x86_64
 
-    - name: Run set_globals.sh 
+    - name: Run set_globals.sh
       shell: sh ./set_globals.sh chdir={{ranger_hdp_dir}}
       environment:
         JAVA_HOME: /usr/lib/jvm/jre-1.7.0-openjdk.x86_64
