@@ -37,7 +37,7 @@
       when: "{{ build_params.apply_patches }}"
 
     - name: Check if any patch needs to be applied
-      shell: find {{patches_dir}} -name *.patch -type f | wc -l
+      shell: find {{patches_dir}} -name '*.patch' -type f | wc -l | tr -d '[[:space:]]'
       register: patches_available
 
     - name: Apply patches
