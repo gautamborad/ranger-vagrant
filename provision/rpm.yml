@@ -6,14 +6,33 @@
 
   tasks:
     - name: Download sources
-      get_url: url={{rpm_install_params.hdp_repo}} dest=/etc/yum.repos.d/hdp.repo
+      get_url: url={{rpm_install_params.hdp_repo}} dest=/etc/yum.repos.d/hdp.repo force=yes
 
     - name: yum clean all
       command: yum clean all
 
     - name: Install ranger-admin
-      yum: name=ranger-admin
-           state=present
+      yum: name=ranger-admin state=present update_cache=yes
+
+    - name: Install HDFS plugin
+      yum: name=ranger-hdfs-plugin.noarch state=present update_cache=yes
+      when: "{{ build_params.rpm_install_params.plugin_hdfs }}"
+
+    - name: Install Hive plugin
+      yum: name=ranger-hive-plugin.noarch state=present update_cache=yes
+      when: "{{ build_params.rpm_install_params.plugin_hive }}"
+
+    - name: Install ranger-admin
+      yum: name=ranger-hbase-plugin.noarch state=present update_cache=yes
+      when: "{{ build_params.rpm_install_params.plugin_hbase }}"
+
+    - name: Install Knox plugin
+      yum: name=ranger-knox-plugin.noarch state=present update_cache=yes
+      when: "{{ build_params.rpm_install_params.plugin_knox }}"
+
+    - name: Install Storm plugin
+      yum: name=ranger-storm-plugin.noarch state=present update_cache=yes
+      when: "{{ build_params.rpm_install_params.plugin_storm }}"
 
     - name: Copy install.properties
       copy: src=../data/install.properties

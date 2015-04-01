@@ -3,8 +3,13 @@
 	"box_url" : "https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box",
 	"rpm_install" : false,
 	"rpm_install_params" : {
-		"hdp_repo" : "http://s3.amazonaws.com/dev.hortonworks.com/HDP/centos6/2.x/GA/2.2.0.0/hdp.repo",
-		"db_flavor" : "mysql"
+		"hdp_repo" : "http://s3.amazonaws.com/dev.hortonworks.com/HDP/centos6/2.x/updates/2.3.0.0/hdpqe.repo",
+		"db_flavor" : "mysql",
+		"plugin_hdfs" : true,
+		"plugin_hive" : false,
+		"plugin_hbase" : false,
+		"plugin_knox" : false,
+		"plugin_storm" : false
 	},
     "build_ranger" : true,
 	"build_params" : {
@@ -13,7 +18,7 @@
 		"ranger_repo" : "https://github.com/apache/incubator-ranger.git",
 		"ranger_branch" : "master",
 		"build_command" : "mvn clean compile package assembly:assembly",
-		"apply_patches" : false
+		"apply_patches" : true
 	},
 	"vm_mem" : 3072
 }
