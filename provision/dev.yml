@@ -39,10 +39,11 @@
     - name: Check if any patch needs to be applied
       shell: find {{patches_dir}} -name '*.patch' -type f | wc -l | tr -d '[[:space:]]'
       register: patches_available
+      when: "{{ build_params.apply_patches }}"
 
     - name: Apply patches
       shell: for i in {{patches_dir}}/*.patch; do git apply $i; done chdir={{ src_dir }}
-      when : not patches_available.stdout == "0"
+      when : {{ build_params.apply_patches }}" and not patches_available.stdout == "0"
 
     - name: Build Ranger Admin
       shell: mvn clean compile package assembly:assembly chdir={{src_dir}}

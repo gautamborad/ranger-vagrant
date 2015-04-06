@@ -48,7 +48,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # argument is a set of non-required options.
   #
   config.vm.synced_folder "data", "/vagrant_data"
-  config.vm.synced_folder "/Users/gautam/.m2/", "/home/vagrant/.m2"
+  config.vm.synced_folder File.expand_path('~/.m2'), "/home/vagrant/.m2"
+  config.vm.synced_folder File.expand_path('~/.m2'), "/root/.m2"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
